@@ -11,7 +11,7 @@ class PlayPage extends StatefulWidget {
   State<PlayPage> createState() => _PlayPageState();
 }
 
-class _PlayPageState extends State<PlayPage> {
+class _PlayPageState extends State<PlayPage> with WidgetsBindingObserver {
   final RoutineService _routineService = RoutineService();
   final WorkoutHistoryService _historyService = WorkoutHistoryService();
   late Future<void> _initServicesFuture;
@@ -19,7 +19,34 @@ class _PlayPageState extends State<PlayPage> {
   @override
   void initState() {
     super.initState();
-    _initServicesFuture = Future.wait([_routineService.init(), _historyService.init()]);
+    WidgetsBinding.instance.addObserver(this);
+    _initServicesFuture =
+        Future.wait([_routineService.init(), _historyService.init()]);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {});
+    }
+  }
+
+  void _playRoutine(Routine routine) {
+    Navigator.of(context)
+        .push(
+      MaterialPageRoute(
+        builder: (context) => WorkoutPage(routine: routine),
+      ),
+    )
+        .then((_) {
+      setState(() {});
+    });
   }
 
   @override
@@ -72,12 +99,18 @@ class _PlayPageState extends State<PlayPage> {
               children: [
                 if (lastPlayed != null) ...[
                   Text('Last Played', style: Theme.of(context).textTheme.headlineSmall),
-                  RoutineSummaryCard(routine: lastPlayed, historyService: _historyService),
+                  RoutineSummaryCard(
+                      routine: lastPlayed,
+                      historyService: _historyService,
+                      onPlay: () => _playRoutine(lastPlayed!)),
                   const SizedBox(height: 20),
                 ],
                 if (nextScheduled != null) ...[
                   Text('Next Scheduled for Today', style: Theme.of(context).textTheme.headlineSmall),
-                  RoutineSummaryCard(routine: nextScheduled, historyService: _historyService),
+                  RoutineSummaryCard(
+                      routine: nextScheduled,
+                      historyService: _historyService,
+                      onPlay: () => _playRoutine(nextScheduled!)),
                 ] else ...[
                    const Text('No routines scheduled for today.'),
                 ]
@@ -93,7 +126,12 @@ class _PlayPageState extends State<PlayPage> {
 class RoutineSummaryCard extends StatelessWidget {
   final Routine routine;
   final WorkoutHistoryService historyService;
-  const RoutineSummaryCard({super.key, required this.routine, required this.historyService});
+  final VoidCallback onPlay;
+  const RoutineSummaryCard(
+      {super.key,
+      required this.routine,
+      required this.historyService,
+      required this.onPlay});
 
   @override
   Widget build(BuildContext context) {
@@ -120,13 +158,7 @@ class RoutineSummaryCard extends StatelessWidget {
         trailing: ElevatedButton.icon(
           icon: const Icon(Icons.play_arrow),
           label: const Text('Play'),
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => WorkoutPage(routine: routine),
-              ),
-            );
-          },
+          onPressed: onPlay,
         ),
       ),
     );
