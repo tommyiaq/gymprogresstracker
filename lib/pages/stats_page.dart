@@ -88,7 +88,7 @@ class _StatsPageState extends State<StatsPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Workout Details for ${DateFormat.yMMMd().format(dailyLogs.first.endTime)}'),
+          title: Text('Workout Details for ${DateFormat('d MMM yyyy').format(dailyLogs.first.endTime)}'),
           content: SizedBox(
             width: double.maxFinite,
             child: ListView.builder(
@@ -246,7 +246,7 @@ class _StatsPageState extends State<StatsPage> {
                         );
                       }).toList(),
                       titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 30, getTitlesWidget: (value, meta) => Text(DateFormat.Md().format(DateTime.fromMillisecondsSinceEpoch(value.toInt())), style: const TextStyle(fontSize: 10)), interval: (_endDate.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch) / 4)),
+                        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 30, getTitlesWidget: (value, meta) => Text(DateFormat('d MMM').format(DateTime.fromMillisecondsSinceEpoch(value.toInt())), style: const TextStyle(fontSize: 10)), interval: (_endDate.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch) / 4)),
                         leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 40, getTitlesWidget: (value, meta) => Text('${value.toInt()}%'))),
                         topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                         rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -269,7 +269,7 @@ class _StatsPageState extends State<StatsPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => _navigatePeriod(-1)),
-          Text('${DateFormat.yMd().format(startDate)} - ${DateFormat.yMd().format(_endDate)}'),
+          Text('${DateFormat('d MMM yyyy').format(startDate)} - ${DateFormat('d MMM yyyy').format(_endDate)}'),
           IconButton(icon: Icon(Icons.arrow_forward), onPressed: isRightArrowDisabled ? null : () => _navigatePeriod(1)),
         ],
       ),
