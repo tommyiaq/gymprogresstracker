@@ -3,6 +3,8 @@ import 'package:gymprogresstracker/pages/manage_routines_page.dart';
 import 'package:gymprogresstracker/pages/play_page.dart';
 import 'package:gymprogresstracker/pages/stats_page.dart';
 
+final GlobalKey<_HomeWidgetState> homeWidgetKey = GlobalKey<_HomeWidgetState>();
+
 class HomeWidget extends StatefulWidget {
   const HomeWidget({super.key});
 
@@ -19,10 +21,14 @@ class _HomeWidgetState extends State<HomeWidget> {
     StatsPage(),
   ];
 
-  void _onItemTapped(int index) {
+  void switchToTab(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  void _onItemTapped(int index) {
+    switchToTab(index);
   }
 
   @override

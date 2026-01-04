@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:gymprogresstracker/home_widget.dart';
 import 'package:gymprogresstracker/models/routine.dart';
 import 'package:gymprogresstracker/models/routine_exercise.dart';
 import 'package:gymprogresstracker/models/workout_log.dart';
@@ -103,6 +104,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
         const SnackBar(content: Text('Workout Complete! Routine Updated.'), backgroundColor: Colors.green)
       );
       Navigator.of(context).pop();
+      // Switch to stats tab (index 2)
+      homeWidgetKey.currentState?.switchToTab(2);
     }
   }
 
