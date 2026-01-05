@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gymprogresstracker/pages/edit_routine_page.dart';
 import 'package:gymprogresstracker/pages/workout_page.dart';
 import 'package:gymprogresstracker/services/routine_service.dart';
+import 'package:gymprogresstracker/services/backup_service.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ManageRoutinesPage extends StatefulWidget {
   const ManageRoutinesPage({super.key});
@@ -12,6 +14,7 @@ class ManageRoutinesPage extends StatefulWidget {
 
 class _ManageRoutinesPageState extends State<ManageRoutinesPage> {
   final RoutineService _routineService = RoutineService();
+  final BackupService _backupService = BackupService();
   late Future<void> _initServicesFuture;
 
   @override
@@ -47,11 +50,96 @@ class _ManageRoutinesPageState extends State<ManageRoutinesPage> {
     );
   }
 
+  Future<void> _exportBackup() async {
+    final filePath = await _backupService.exportData();
+    if (filePath != null && mounted) {
+      await Share.shareXFiles([XFile(filePath)], text: 'Gym Progress Tracker Backup');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Backup exported successfully!'), backgroundColor: Colors.green),
+      );
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to export backup'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  Future<void> _importBackup() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Import Backup'),
+        content: const Text('This will replace all your current data. Are you sure?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Import'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      final success = await _backupService.importData();
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Backup imported successfully! Please restart the app.'), backgroundColor: Colors.green),
+          );
+          setState(() {
+            _initServicesFuture = _routineService.init();
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to import backup'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Manage Routines'),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'export') {
+                _exportBackup();
+              } else if (value == 'import') {
+                _importBackup();
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'export',
+                child: Row(
+                  children: [
+                    Icon(Icons.upload_file),
+                    SizedBox(width: 8),
+                    Text('Export Backup'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'import',
+                child: Row(
+                  children: [
+                    Icon(Icons.download),
+                    SizedBox(width: 8),
+                    Text('Import Backup'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: FutureBuilder(
         future: _initServicesFuture,
