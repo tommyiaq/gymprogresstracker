@@ -182,11 +182,20 @@ class _StatsPageState extends State<StatsPage> {
     final Map<String, List<FlSpot>> exerciseData = {};
     dailyEffortSum.forEach((name, dayMap) {
       if (!_deselectedExercises.contains(name)) {
-        dayMap.forEach((day, totalEffort) {
+        // Create a list of all days in the range
+        final List<FlSpot> spots = [];
+        DateTime currentDay = DateTime(startDate.year, startDate.month, startDate.day);
+        final endDay = DateTime(_endDate.year, _endDate.month, _endDate.day);
+        
+        while (currentDay.isBefore(endDay) || currentDay.isAtSameMomentAs(endDay)) {
+          final totalEffort = dayMap[currentDay] ?? 0.0;
           final maxEffort = maxEffortPerExercise[name]!;
           final normalizedEffort = (totalEffort / maxEffort) * 100;
-          exerciseData.putIfAbsent(name, () => []).add(FlSpot(day.millisecondsSinceEpoch.toDouble(), normalizedEffort));
-        });
+          spots.add(FlSpot(currentDay.millisecondsSinceEpoch.toDouble(), normalizedEffort));
+          currentDay = currentDay.add(const Duration(days: 1));
+        }
+        
+        exerciseData[name] = spots;
       }
     });
 
@@ -237,7 +246,7 @@ class _StatsPageState extends State<StatsPage> {
                       lineBarsData: exerciseData.entries.map((entry) {
                         return LineChartBarData(
                           spots: entry.value,
-                          isCurved: true,
+                          isCurved: false,
                           color: exerciseColors[entry.key]!,
                           barWidth: 3,
                           isStrokeCapRound: true,
@@ -246,7 +255,23 @@ class _StatsPageState extends State<StatsPage> {
                         );
                       }).toList(),
                       titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 30, getTitlesWidget: (value, meta) => Text(DateFormat('d MMM').format(DateTime.fromMillisecondsSinceEpoch(value.toInt())), style: const TextStyle(fontSize: 10)), interval: (_endDate.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch) / 4)),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 30,
+                            getTitlesWidget: (value, meta) {
+                              // Skip if too close to min to avoid duplication
+                              if ((value - meta.min).abs() < (meta.max - meta.min) * 0.05 && value != meta.min) {
+                                return const SizedBox.shrink();
+                              }
+                              return Text(
+                                DateFormat('d MMM').format(DateTime.fromMillisecondsSinceEpoch(value.toInt())),
+                                style: const TextStyle(fontSize: 10),
+                              );
+                            },
+                            interval: (_endDate.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch) / 4,
+                          ),
+                        ),
                         leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 40, getTitlesWidget: (value, meta) => Text('${value.toInt()}%'))),
                         topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                         rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
