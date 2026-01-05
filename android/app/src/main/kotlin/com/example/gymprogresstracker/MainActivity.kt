@@ -1,4 +1,4 @@
-package com.example.gymprogresstracker
+package com.tommyiaq.gymprogresstracker
 
 import io.flutter.embedding.android.FlutterActivity
 

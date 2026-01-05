@@ -29,7 +29,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.example.gymprogresstracker"
+    namespace "com.tommyiaq.gymprogresstracker"
     compileSdk 36 // Explicitly set compileSdk version
     ndkVersion flutter.ndkVersion
 
@@ -48,7 +48,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.gymprogresstracker"
+        applicationId "com.tommyiaq.gymprogresstracker"
         minSdkVersion flutter.minSdkVersion // Explicitly set minSdkVersion
         targetSdkVersion 36 // Explicitly set targetSdkVersion
         versionCode flutterVersionCode.toInteger()

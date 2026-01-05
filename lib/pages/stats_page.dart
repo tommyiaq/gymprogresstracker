@@ -221,8 +221,8 @@ class _StatsPageState extends State<StatsPage> {
                   padding: const EdgeInsets.all(16.0),
                   child: LineChart(
                     LineChartData(
-                      minX: startDate.millisecondsSinceEpoch.toDouble(),
-                      maxX: _endDate.millisecondsSinceEpoch.toDouble(),
+                      minX: startDate.millisecondsSinceEpoch.toDouble() - (Duration.millisecondsPerDay * 0.5),
+                      maxX: _endDate.millisecondsSinceEpoch.toDouble() + (Duration.millisecondsPerDay * 0.5),
                       minY: 0,
                       maxY: 100,
                       lineTouchData: LineTouchData(

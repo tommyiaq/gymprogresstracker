@@ -81,3 +81,9 @@ To run this project:
     ```bash
     flutter run
     ```
+
+# Build app bundle for play console
+flutter build appbundle --release
+
+# Build apk for myself
+flutter build apk --release
