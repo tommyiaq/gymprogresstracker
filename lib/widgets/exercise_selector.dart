@@ -36,6 +36,17 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
     });
   }
 
+  void _reorderExercises(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+      final exercise = _selectedExercises.removeAt(oldIndex);
+      _selectedExercises.insert(newIndex, exercise);
+      widget.onSelectionChanged(_selectedExercises);
+    });
+  }
+
   void _showAddExerciseDialog() {
     showDialog(
       context: context,
@@ -55,14 +66,17 @@ class _ExerciseSelectorState extends State<ExerciseSelector> {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
-        ListView.builder(
+        ReorderableListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _selectedExercises.length,
+          onReorder: _reorderExercises,
           itemBuilder: (context, index) {
             final re = _selectedExercises[index];
             return Card(
+              key: ValueKey('${re.exercise.name}_$index'),
               child: ListTile(
+                leading: const Icon(Icons.drag_handle),
                 title: Text(re.exercise.name),
                 subtitle: Text('Reps: ${re.reps}, Weight: ${re.weight}kg, Variation: ${re.variation}'),
                 trailing: IconButton(

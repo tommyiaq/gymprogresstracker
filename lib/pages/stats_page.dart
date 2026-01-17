@@ -199,8 +199,21 @@ class _StatsPageState extends State<StatsPage> {
       }
     });
 
-    // Assign colors
-    final List<Color> colors = [Colors.blue, Colors.red, Colors.green, Colors.orange, Colors.purple, Colors.brown];
+    // Assign colors (expanded palette to avoid duplicates for many exercises)
+    final List<Color> colors = [
+      Colors.blue,
+      Colors.red,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.brown,
+      Colors.teal,
+      Colors.indigo,
+      Colors.pink,
+      Colors.amber,
+      Colors.cyan,
+      Colors.lime,
+    ];
     final Map<String, Color> exerciseColors = {};
     int colorIndex = 0;
     for (var name in allExercisesInPeriod) {
