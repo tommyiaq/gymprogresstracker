@@ -223,17 +223,19 @@ class _StatsPageState extends State<StatsPage> {
 
     bool isRightArrowDisabled = _endDate.year == DateTime.now().year && _endDate.month == DateTime.now().month && _endDate.day == DateTime.now().day;
 
-    return Column(
-      children: [
-        _buildDateControls(),
-        _buildPeriodNavigator(startDate, isRightArrowDisabled),
-        Expanded(
-          child: logs.isEmpty
-              ? const Center(child: Text('No workout data in this period.'))
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildDateControls(),
+          _buildPeriodNavigator(startDate, isRightArrowDisabled),
+          logs.isEmpty
+              ? const SizedBox(height: 300, child: Center(child: Text('No workout data in this period.')))
               : Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: LineChart(
-                    LineChartData(
+                  child: SizedBox(
+                    height: 350,
+                    child: LineChart(
+                      LineChartData(
                       minX: startDate.millisecondsSinceEpoch.toDouble() - (Duration.millisecondsPerDay * 0.5),
                       maxX: _endDate.millisecondsSinceEpoch.toDouble() + (Duration.millisecondsPerDay * 0.5),
                       minY: 0,
@@ -273,13 +275,16 @@ class _StatsPageState extends State<StatsPage> {
                             showTitles: true,
                             reservedSize: 30,
                             getTitlesWidget: (value, meta) {
-                              // Skip if too close to min to avoid duplication
-                              if ((value - meta.min).abs() < (meta.max - meta.min) * 0.05 && value != meta.min) {
+                              // Skip the auto-generated min/max edge labels
+                              if (value == meta.min || value == meta.max) {
                                 return const SizedBox.shrink();
                               }
-                              return Text(
-                                DateFormat('d MMM').format(DateTime.fromMillisecondsSinceEpoch(value.toInt())),
-                                style: const TextStyle(fontSize: 10),
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Text(
+                                  DateFormat('d MMM').format(DateTime.fromMillisecondsSinceEpoch(value.toInt())),
+                                  style: const TextStyle(fontSize: 10),
+                                ),
                               );
                             },
                             interval: (_endDate.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch) / 4,
@@ -291,12 +296,13 @@ class _StatsPageState extends State<StatsPage> {
                       ),
                       gridData: FlGridData(show: true),
                       borderData: FlBorderData(show: true),
+                      ),
                     ),
                   ),
                 ),
-        ),
-        _buildExerciseFilter(allExercisesInPeriod, exerciseColors),
-      ],
+          _buildExerciseFilter(allExercisesInPeriod, exerciseColors),
+        ],
+      ),
     );
   }
 
