@@ -125,6 +125,16 @@ class _WorkoutPageState extends State<WorkoutPage> {
           child: Column(
             children: [
               Text(_formatDuration(_sessionDuration), style: Theme.of(context).textTheme.headlineMedium),
+              const SizedBox(height: 8),
+              Text(
+                'Exercise ${_currentExerciseIndex + 1} / ${_currentRoutine.exercises.length}',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[400]),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _formatDuration(DateTime.now().difference(_exerciseStartTime ?? DateTime.now())),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.grey[500]),
+              ),
               const SizedBox(height: 20),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 500),
